@@ -3,7 +3,8 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 import os
 
 # Твій Telegram ID — щоб бот знав, кому пересилати
-ADMIN_ID = 425850962
+# ADMIN_ID = 425850962 # ak
+ADMIN_ID = 523219178
 # int(os.getenv("asterindex"))
 
 # Зберігаємо відповідності між повідомленнями користувачів і твоїми відповідями
@@ -43,7 +44,8 @@ if __name__ == "__main__":
     load_dotenv()
 
     # TOKEN = os.getenv("7619544899:AAHy0YELBPwqAAztN2j1BfJ7WU5Qzvwk2-0")
-    TOKEN = "7619544899:AAHy0YELBPwqAAztN2j1BfJ7WU5Qzvwk2-0"
+    # TOKEN = "7619544899:AAHy0YELBPwqAAztN2j1BfJ7WU5Qzvwk2-0"
+    TOKEN = "7788026172:AAFzVua5v229CtrbrQQQX8YEtg-vDi4h93I"
 
     app = ApplicationBuilder().token(TOKEN).build()
 
