@@ -5,52 +5,46 @@ import os
 # Твій Telegram ID — щоб бот знав, кому пересилати
 # ADMIN_ID = 425850962 # ak
 ADMIN_ID = 523219178
+BOT_TOKEN = "7788026172:AAFzVua5v229CtrbrQQQX8YEtg-vDi4h93I"
 # int(os.getenv("asterindex"))
 
-# Зберігаємо відповідності між повідомленнями користувачів і твоїми відповідями
-user_messages = {}
+# Словник: message_id адміністратора → user_id користувача
+message_map = {}
 
 async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.effective_user.id
+    user = update.effective_user
     msg = update.message.text
 
-    # зберігаємо ID повідомлення для відповіді
-    user_messages[user_id] = update.message
+    # Надсилаємо адміну повідомлення користувача
+    sent = await context.bot.send_message(
+        chat_id=ADMIN_ID,
+        text=f"Користувач {user.first_name} ({user.id}) пише:\n\n{msg}"
+    )
 
-    # Пересилаємо повідомлення адміну (тобі)
-    await context.bot.send_message(chat_id=ADMIN_ID, text=f"[{user_id}] питає:\n{msg}")
+    # Запам'ятовуємо, хто це був
+    message_map[sent.message_id] = user.id
 
 async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    reply_to_text = update.message.text
-
+    # Перевіряємо, чи це відповідь на повідомлення
     if not update.message.reply_to_message:
-        await update.message.reply_text("Відповідай *на повідомлення користувача*!", parse_mode="Markdown")
+        await update.message.reply_text("❗ Відповідай саме на повідомлення користувача.")
         return
 
-    # Витягаємо user_id з тексту оригінального повідомлення
-    try:
-        line = update.message.reply_to_message.text.split(']')[0]
-        user_id = int(line.replace('[', ''))
-    except:
-        await update.message.reply_text("Не вдалося визначити користувача.")
-        return
+    replied_id = update.message.reply_to_message.message_id
+    reply_text = update.message.text
 
-    await context.bot.send_message(chat_id=user_id, text=reply_to_text)
+    # Шукаємо, кому потрібно надіслати відповідь
+    user_id = message_map.get(replied_id)
+    if user_id:
+        await context.bot.send_message(chat_id=user_id, text=reply_text)
+    else:
+        await update.message.reply_text("❗ Не вдалося знайти користувача для відповіді.")
 
-# Запуск
+# Запуск бота
 if __name__ == "__main__":
-    import asyncio
-    from dotenv import load_dotenv
-    load_dotenv()
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    # TOKEN = os.getenv("7619544899:AAHy0YELBPwqAAztN2j1BfJ7WU5Qzvwk2-0")
-    # TOKEN = "7619544899:AAHy0YELBPwqAAztN2j1BfJ7WU5Qzvwk2-0"
-    TOKEN = "7788026172:AAFzVua5v229CtrbrQQQX8YEtg-vDi4h93I"
-
-    app = ApplicationBuilder().token(TOKEN).build()
-
-    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND) & (~filters.REPLY), handle_user_message))
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.REPLY), handle_user_message))
     app.add_handler(MessageHandler(filters.TEXT & filters.REPLY, handle_admin_reply))
 
-    print("Бот запущено...")
     app.run_polling()
