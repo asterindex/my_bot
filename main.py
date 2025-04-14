@@ -3,48 +3,50 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 import os
 
 # Твій Telegram ID — щоб бот знав, кому пересилати
-# ADMIN_ID = 425850962 # ak
-ADMIN_ID = 523219178
-BOT_TOKEN = "7788026172:AAFzVua5v229CtrbrQQQX8YEtg-vDi4h93I"
+ADMIN_ID = 425850962 # ak
+# ADMIN_ID = 523219178
+BOT_TOKEN = "7619544899:AAHy0YELBPwqAAztN2j1BfJ7WU5Qzvwk2-0"
+# BOT_TOKEN = "7788026172:AAFzVua5v229CtrbrQQQX8YEtg-vDi4h93I"
 # int(os.getenv("asterindex"))
 
-# Словник: message_id адміністратора → user_id користувача
-message_map = {}
+# Зберігаємо відповідності: message_id => user_id
+reply_map = {}
 
 async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     msg = update.message.text
 
-    # Надсилаємо адміну повідомлення користувача
+    # Надсилаємо адміну повідомлення + зберігаємо кому відповісти
     sent = await context.bot.send_message(
         chat_id=ADMIN_ID,
-        text=f"Користувач {user.first_name} ({user.id}) пише:\n\n{msg}"
+        text=f"📩 Повідомлення від @{user.username or user.first_name} (ID {user.id}):\n\n{msg}"
     )
-
-    # Запам'ятовуємо, хто це був
-    message_map[sent.message_id] = user.id
+    reply_map[sent.message_id] = user.id  # запам'ятали, що це писав user.id
 
 async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Перевіряємо, чи це відповідь на повідомлення
     if not update.message.reply_to_message:
-        await update.message.reply_text("❗ Відповідай саме на повідомлення користувача.")
+        await update.message.reply_text("❗ Відповідай на повідомлення користувача.")
         return
 
-    replied_id = update.message.reply_to_message.message_id
-    reply_text = update.message.text
+    replied_msg_id = update.message.reply_to_message.message_id
+    target_user_id = reply_map.get(replied_msg_id)
 
-    # Шукаємо, кому потрібно надіслати відповідь
-    user_id = message_map.get(replied_id)
-    if user_id:
-        await context.bot.send_message(chat_id=user_id, text=reply_text)
-    else:
-        await update.message.reply_text("❗ Не вдалося знайти користувача для відповіді.")
+    if not target_user_id:
+        await update.message.reply_text("⚠️ Не вдалося знайти, кому відповісти.")
+        return
 
-# Запуск бота
+    # Надсилаємо відповідь користувачу
+    await context.bot.send_message(chat_id=target_user_id, text=update.message.text)
+
 if __name__ == "__main__":
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
-    app.add_handler(MessageHandler(filters.TEXT & (~filters.REPLY), handle_user_message))
-    app.add_handler(MessageHandler(filters.TEXT & filters.REPLY, handle_admin_reply))
+    # повідомлення від користувачів (не адміна)
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.User(ADMIN_ID)) & ~filters.REPLY, handle_user_message))
 
+    # відповіді адміна
+    app.add_handler(MessageHandler(filters.TEXT & filters.User(ADMIN_ID) & filters.REPLY, handle_admin_reply))
+
+    print("✅ Бот запущено")
     app.run_polling()
