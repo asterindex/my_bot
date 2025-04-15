@@ -12,16 +12,17 @@ print("ADMIN ID:", ADMIN_ID)
 reply_map = {}
 
 async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not update.message or not update.message.text:
+        return  # Пропускаємо все, що не є текстовим повідомленням
+
     user = update.effective_user
     msg = update.message.text
-    # print(msg)
 
-    # Надсилаємо адміну повідомлення + зберігаємо кому відповісти
     sent = await context.bot.send_message(
         chat_id=ADMIN_ID,
         text=f"📩 Повідомлення від @{user.username or user.first_name} (ID {user.id}):\n\n{msg}"
     )
-    reply_map[sent.message_id] = user.id  # запам'ятали, що це писав user.id
+    reply_map[sent.message_id] = user.id
 
 async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Перевіряємо, чи це відповідь на повідомлення
