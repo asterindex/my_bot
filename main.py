@@ -14,7 +14,7 @@ reply_map = {}
 async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     msg = update.message.text
-    print(msg)
+    # print(msg)
 
     # Надсилаємо адміну повідомлення + зберігаємо кому відповісти
     sent = await context.bot.send_message(
@@ -36,7 +36,7 @@ async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("⚠️ Не вдалося знайти, кому відповісти.")
         return
 
-    print(update.message.text)
+    # print(update.message.text)
     # Надсилаємо відповідь користувачу
     await context.bot.send_message(chat_id=target_user_id, text=update.message.text)
 
