@@ -20,21 +20,21 @@ async def handle_user_message(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     sent = await context.bot.send_message(
         chat_id=ADMIN_ID,
-        text=f"📩 Повідомлення від @{user.username or user.first_name} (ID {user.id}):\n\n{msg}"
+        text=f"Повідомлення від @{user.username or user.first_name} (ID {user.id}):\n\n{msg}"
     )
     reply_map[sent.message_id] = user.id
 
 async def handle_admin_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Перевіряємо, чи це відповідь на повідомлення
     if not update.message.reply_to_message:
-        await update.message.reply_text("❗ Відповідай на повідомлення користувача.")
+        await update.message.reply_text("Відповідай на повідомлення користувача.")
         return
 
     replied_msg_id = update.message.reply_to_message.message_id
     target_user_id = reply_map.get(replied_msg_id)
 
     if not target_user_id:
-        await update.message.reply_text("⚠️ Не вдалося знайти, кому відповісти.")
+        await update.message.reply_text("Не вдалося знайти, кому відповісти.")
         return
 
     # print(update.message.text)
@@ -50,5 +50,5 @@ if __name__ == "__main__":
     # відповіді адміна
     app.add_handler(MessageHandler(filters.TEXT & filters.User(ADMIN_ID) & filters.REPLY, handle_admin_reply))
 
-    print("✅ Бот запущено")
+    print("Бот запущено")
     app.run_polling()
