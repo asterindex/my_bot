@@ -3,12 +3,10 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 import os
 
 # Твій Telegram ID — щоб бот знав, кому пересилати
-# ADMIN_ID = 425850962 # ak
 ADMIN_ID = int(os.getenv("ADMIN_ID", 0)) # 523219178
-# BOT_TOKEN = "7619544899:AAHy0YELBPwqAAztN2j1BfJ7WU5Qzvwk2-0"
-# BOT_TOKEN = "7788026172:AAFzVua5v229CtrbrQQQX8YEtg-vDi4h93I"
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-# int(os.getenv("asterindex"))
+print("TOKEN:", BOT_TOKEN)
+print("ADMIN ID:", ADMIN_ID)
 
 # Зберігаємо відповідності: message_id => user_id
 reply_map = {}
