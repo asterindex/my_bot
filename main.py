@@ -3,7 +3,7 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 import os
 
 # Твій Telegram ID — щоб бот знав, кому пересилати
-ADMIN_ID = int(os.getenv("ADMIN_ID", 0)) # 523219178
+ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 print("TOKEN:", BOT_TOKEN)
 print("ADMIN ID:", ADMIN_ID)
